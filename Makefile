@@ -16,7 +16,7 @@ build:
 # Команда для сохранения Docker-образа в файл
 save:
 	@echo "\033[32m docker save image... \033[0m"
-	docker save -o $(DOCKER_IMAGE_FILE) $(DOCKER_IMAGE_NAME)
+	docker save -o out/$(DOCKER_IMAGE_FILE) $(DOCKER_IMAGE_NAME)
 
 # Команда для загрузки Docker-образа на удаленную машину
 upload:
