@@ -21,12 +21,12 @@ save:
 # Команда для загрузки Docker-образа на удаленную машину
 upload:
 	@echo "\033[32m download image to server... \033[0m"
-	scp $(DOCKER_IMAGE_FILE) $(REMOTE_HOST):$(REMOTE_DIR)
+	scp out/$(DOCKER_IMAGE_FILE) $(REMOTE_HOST):$(REMOTE_DIR)
 
 # Команда для удаленной загрузки и запуска Docker-образа
-deploy: build save
+deploy: build save upload
 	@echo "\033[32m docker remove old image... \033[0m"
-	ssh $(REMOTE_HOST) "sudo docker rm -f $(DOCKER_IMAGE_NAME).tar || true"
+	ssh $(REMOTE_HOST) "sudo docker rmi -f $(DOCKER_IMAGE_NAME) || true"
 	@echo "\033[32m docker load image... \033[0m"
 	ssh $(REMOTE_HOST) "sudo docker load -i $(REMOTE_DIR)/$(DOCKER_IMAGE_FILE)"
 	@echo "\033[32m docker run image... \033[0m"

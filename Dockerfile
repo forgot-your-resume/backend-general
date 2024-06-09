@@ -1,32 +1,22 @@
-# Используем официальный образ Golang в качестве базового образа
-FROM --platform=amd64 golang:1.19.3-buster AS build
+# build
+FROM --platform=amd64 golang:1.22.4-alpine AS build
 
-# Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
 ADD . .
+
+RUN ls
 
 RUN GOARCH=amd64 go build .
 
 # final
-FROM --platform=amd64 debian:buster-slim
+FROM --platform=amd64 alpine
 
-# Копируем файлы go.mod и go.sum в рабочую директорию
-COPY go.mod ./
+# RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+# RUN update-ca-certificates
 
-# Загружаем зависимости
-# RUN go mod download
+WORKDIR /app
+COPY --from=build /app/backend-general .
 
-# Копируем остальные файлы проекта в рабочую директорию
-# COPY . .
-
-# Скачиваем зависимости и строим бинарный файл
-# RUN go build -o main .
-
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
-RUN update-ca-certificates
-
-# Указываем порт, который будет слушать наше приложение
 EXPOSE 8080
 
-# Команда для запуска приложения
-CMD ["./main"]
+CMD ["/app/backend-general"]
