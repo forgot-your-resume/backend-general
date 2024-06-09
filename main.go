@@ -2,38 +2,244 @@ package main
 
 import (
     "encoding/json"
+    "io/ioutil"
     "log"
     "net/http"
+    "os"
+    "path/filepath"
+    "sync"
 )
 
-// Структура для примера данных
-type ExampleData struct {
-    ID   int    `json:"id"`
-    Name string `json:"name"`
+// Пользовательская структура
+type User struct {
+    Login    string `json:"login"`
+    Password string `json:"password"`
+    Role     string `json:"role"`
 }
 
-// Точка /hello
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-    w.Write([]byte("Hello, World!"))
+// Структура для входа
+type LoginRequest struct {
+    Login    string `json:"login"`
+    Password string `json:"password"`
 }
 
-// Точка /data
-func dataHandler(w http.ResponseWriter, r *http.Request) {
-    data := ExampleData{ID: 1, Name: "Sample Data"}
-    jsonData, err := json.Marshal(data)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
+// Структура конференции
+type Conference struct {
+    ID        string `json:"id"`
+    DateTime  string `json:"dateTime"`
+    Questions []Question `json:"questions"`
+}
+
+// Структура вопроса
+type Question struct {
+    Question string `json:"question"`
+    Answer   string `json:"answer"`
+}
+
+var (
+    users       = make(map[string]User)
+    conferences = make(map[string]Conference)
+    usersMutex  sync.Mutex
+    confsMutex  sync.Mutex
+    dataDir     = "./data"
+)
+
+func main() {
+    if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
+        log.Fatalf("Failed to create data directory: %v", err)
+    }
+
+    loadUsers()
+    loadConferences()
+
+    http.HandleFunc("/ping", pingHandler)
+    http.HandleFunc("/register", registerHandler)
+    http.HandleFunc("/login", loginHandler)
+    http.HandleFunc("/conferences", conferencesHandler)
+    http.HandleFunc("/add_question", addQuestionHandler)
+    http.HandleFunc("/get_questions", getQuestionsHandler)
+
+    log.Println("Server is running on port 8080")
+    log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func pingHandler(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte("pong"))
+}
+
+func registerHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+        return
+    }
+
+    var user User
+    if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+
+    if user.Role != "соискатель" && user.Role != "рекрутер" && user.Role != "эксперт" {
+        http.Error(w, "Invalid role", http.StatusBadRequest)
+        return
+    }
+
+    usersMutex.Lock()
+    users[user.Login] = user
+    usersMutex.Unlock()
+
+    saveUsers()
+
+    w.WriteHeader(http.StatusCreated)
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+        return
+    }
+
+    var loginReq LoginRequest
+    if err := json.NewDecoder(r.Body).Decode(&loginReq); err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+
+    usersMutex.Lock()
+    user, exists := users[loginReq.Login]
+    usersMutex.Unlock()
+
+    if !exists || user.Password != loginReq.Password {
+        http.Error(w, "Invalid login or password", http.StatusUnauthorized)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+}
+
+func conferencesHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodGet {
+        http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+        return
+    }
+
+    confsMutex.Lock()
+    confList := make([]Conference, 0, len(conferences))
+    for _, conf := range conferences {
+        confList = append(confList, conf)
+    }
+    confsMutex.Unlock()
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(confList)
+}
+
+func addQuestionHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodPost {
+        http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+        return
+    }
+
+    var data struct {
+        ConfID   string `json:"confID"`
+        Question string `json:"question"`
+        Answer   string `json:"answer"`
+    }
+    if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+        http.Error(w, "Invalid request body", http.StatusBadRequest)
+        return
+    }
+
+    confsMutex.Lock()
+    conf, exists := conferences[data.ConfID]
+    if exists {
+        conf.Questions = append(conf.Questions, Question{Question: data.Question, Answer: data.Answer})
+        conferences[data.ConfID] = conf
+    }
+    confsMutex.Unlock()
+
+    if !exists {
+        http.Error(w, "Conference not found", http.StatusNotFound)
+        return
+    }
+
+    saveConferences()
+
+    w.WriteHeader(http.StatusOK)
+}
+
+func getQuestionsHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodGet {
+        http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+        return
+    }
+
+    confID := r.URL.Query().Get("confID")
+    if confID == "" {
+        http.Error(w, "Conference ID is required", http.StatusBadRequest)
+        return
+    }
+
+    confsMutex.Lock()
+    conf, exists := conferences[confID]
+    confsMutex.Unlock()
+
+    if !exists {
+        http.Error(w, "Conference not found", http.StatusNotFound)
         return
     }
 
     w.Header().Set("Content-Type", "application/json")
-    w.Write(jsonData)
+    json.NewEncoder(w).Encode(conf.Questions)
 }
 
-func main() {
-    http.HandleFunc("/hello", helloHandler)
-    http.HandleFunc("/data", dataHandler)
+func loadUsers() {
+    file, err := ioutil.ReadFile(filepath.Join(dataDir, "users.json"))
+    if err != nil {
+        if os.IsNotExist(err) {
+            return
+        }
+        log.Fatalf("Failed to load users: %v", err)
+    }
 
-    log.Println("Starting server on :8080")
-    log.Fatal(http.ListenAndServe(":8080", nil))
+    if err := json.Unmarshal(file, &users); err != nil {
+        log.Fatalf("Failed to parse users: %v", err)
+    }
+}
+
+func saveUsers() {
+    file, err := json.MarshalIndent(users, "", "  ")
+    if err != nil {
+        log.Fatalf("Failed to encode users: %v", err)
+    }
+
+    if err := ioutil.WriteFile(filepath.Join(dataDir, "users.json"), file, 0644); err != nil {
+        log.Fatalf("Failed to save users: %v", err)
+    }
+}
+
+func loadConferences() {
+    file, err := ioutil.ReadFile(filepath.Join(dataDir, "conferences.json"))
+    if err != nil {
+        if os.IsNotExist(err) {
+            return
+        }
+        log.Fatalf("Failed to load conferences: %v", err)
+    }
+
+    if err := json.Unmarshal(file, &conferences); err != nil {
+        log.Fatalf("Failed to parse conferences: %v", err)
+    }
+}
+
+func saveConferences() {
+    file, err := json.MarshalIndent(conferences, "", "  ")
+    if err != nil {
+        log.Fatalf("Failed to encode conferences: %v", err)
+    }
+
+    if err := ioutil.WriteFile(filepath.Join(dataDir, "conferences.json"), file, 0644); err != nil {
+        log.Fatalf("Failed to save conferences: %v", err)
+    }
 }
