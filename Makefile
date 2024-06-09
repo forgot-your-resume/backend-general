@@ -27,6 +27,8 @@ upload:
 deploy: build save upload
 	@echo "\033[32m docker remove old image... \033[0m"
 	ssh $(REMOTE_HOST) "sudo docker rmi -f $(DOCKER_IMAGE_NAME) || true"
+	@echo "\033[32m stop and remove containers using port 8080... \033[0m"
+	ssh $(REMOTE_HOST) "sudo docker ps -q --filter 'publish=8080' | xargs -r sudo docker stop | xargs -r sudo docker rm"
 	@echo "\033[32m docker load image... \033[0m"
 	ssh $(REMOTE_HOST) "sudo docker load -i $(REMOTE_DIR)/$(DOCKER_IMAGE_FILE)"
 	@echo "\033[32m docker run image... \033[0m"
