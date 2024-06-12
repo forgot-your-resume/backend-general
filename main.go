@@ -4,12 +4,10 @@ import (
     "encoding/json"
     "io/ioutil"
     "log"
-    "math/rand"
     "net/http"
     "os"
     "path/filepath"
     "sync"
-    "time"
 
     "github.com/google/uuid"
     "github.com/rs/cors"
@@ -288,14 +286,4 @@ func saveConferences() {
     if err := ioutil.WriteFile(filepath.Join(dataDir, "conferences.json"), file, 0644); err != nil {
         log.Fatalf("Failed to save conferences: %v", err)
     }
-}
-
-func generateID() string {
-    rand.Seed(time.Now().UnixNano())
-    const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    b := make([]byte, 10)
-    for i := range b {
-        b[i] = letters[rand.Intn(len(letters))]
-    }
-    return string(b)
 }
