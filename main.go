@@ -17,6 +17,7 @@ import (
 
 // Пользовательская структура
 type User struct {
+    ID       string `json:"id"`
     Login    string `json:"login"`
     Password string `json:"password"`
     Role     string `json:"role"`
@@ -96,6 +97,9 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    userID := uuid.New().String()
+    user.ID = userID
+
     usersMutex.Lock()
     users[user.Login] = user
     usersMutex.Unlock()
@@ -104,6 +108,33 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
     w.WriteHeader(http.StatusCreated)
 }
+
+
+// func registerHandler(w http.ResponseWriter, r *http.Request) {
+//     if r.Method != http.MethodPost {
+//         http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+//         return
+//     }
+
+//     var user User
+//     if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+//         http.Error(w, "Invalid request body", http.StatusBadRequest)
+//         return
+//     }
+
+//     if user.Role != "соискатель" && user.Role != "рекрутер" && user.Role != "эксперт" {
+//         http.Error(w, "Invalid role", http.StatusBadRequest)
+//         return
+//     }
+
+//     usersMutex.Lock()
+//     users[user.Login] = user
+//     usersMutex.Unlock()
+
+//     saveUsers()
+
+//     w.WriteHeader(http.StatusCreated)
+// }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
     if r.Method != http.MethodPost {
