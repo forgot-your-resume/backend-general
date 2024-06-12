@@ -11,6 +11,7 @@ import (
     "sync"
     "time"
 
+    "github.com/google/uuid"
     "github.com/rs/cors"
 )
 
@@ -219,7 +220,7 @@ func createConferenceHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    confID := generateID()
+    confID := uuid.New().String()
 
     confsMutex.Lock()
     conferences[confID] = Conference{
