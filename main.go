@@ -10,6 +10,7 @@ import (
     "path/filepath"
     "sync"
     "time"
+    "github.com/rs/cors"
 )
 
 // Пользовательская структура
@@ -48,6 +49,8 @@ var (
 )
 
 func main() {
+    mux := http.NewServeMux()
+
     if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
         log.Fatalf("Failed to create data directory: %v", err)
     }
@@ -55,16 +58,18 @@ func main() {
     loadUsers()
     loadConferences()
 
-    http.HandleFunc("/ping", pingHandler)
-    http.HandleFunc("/register", registerHandler)
-    http.HandleFunc("/login", loginHandler)
-    http.HandleFunc("/conferences", conferencesHandler)
-    http.HandleFunc("/add_question", addQuestionHandler)
-    http.HandleFunc("/get_questions", getQuestionsHandler)
-    http.HandleFunc("/create_conference", createConferenceHandler)
+    mux.HandleFunc("/ping", pingHandler)
+    mux.HandleFunc("/register", registerHandler)
+    mux.HandleFunc("/login", loginHandler)
+    mux.HandleFunc("/conferences", conferencesHandler)
+    mux.HandleFunc("/add_question", addQuestionHandler)
+    mux.HandleFunc("/get_questions", getQuestionsHandler)
+    mux.HandleFunc("/create_conference", createConferenceHandler)
+
+    handler := cors.Default().Handler(mux)
 
     log.Println("Server is running on port 8080")
-    log.Fatal(http.ListenAndServe(":8080", nil))
+    log.Fatal(http.ListenAndServe(":8080", handler))
 }
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {

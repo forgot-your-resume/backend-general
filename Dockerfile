@@ -11,9 +11,6 @@ RUN GOARCH=amd64 go build .
 # final
 FROM --platform=amd64 alpine
 
-# RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
-# RUN update-ca-certificates
-
 WORKDIR /app
 COPY --from=build /app/backend-general .
 
