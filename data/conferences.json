@@ -1,8 +1,23 @@
 {
+  "2e9b1927-61ab-40c4-beb9-8403e2ef5d3f": {
+    "id": "2e9b1927-61ab-40c4-beb9-8403e2ef5d3f",
+    "name": "Программист kotlin(junior) 3",
+    "dateTime": 1714944000,
+    "questions": null,
+    "token": "007eJxSYJCMMhD4ahpnY/Rud0/4faV3Ec8YPikHJlz/5WHibX7qaawCQ6KRgaWRgYlJillyoolJanJikkGyZaK5pXmimbm5oaFB1+WsNAE+BoZ71p8YGBkYGVgYGBlAfCYwyQwmWcCkAENupW5ZZkpqvm5yRmJeXmoOO0NpcWqRoZExIAAA//+MLSVA"
+  },
+  "f03129c2-8c5f-4911-988c-1303bd3213b5": {
+    "id": "f03129c2-8c5f-4911-988c-1303bd3213b5",
+    "name": "Программист kotlin(junior) 2",
+    "dateTime": 1714944000,
+    "questions": null,
+    "token": "007eJxSYLBacELix5Ols7+9ZEhl2734/CGVYLP3CS4zVDhy/oT2rChWYEg0MrA0MjAxSTFLTjQxSU1OTDJItkw0tzRPNDM3NzQ0ML6clSbAx8DAvH0BKyMDIwMLAyMDiM8EJpnBJAuYFGDIrdQty0xJzddNzkjMy0vNYWcoLU4tMjQyBgQAAP//GaolsQ=="
+  },
   "oTK0M9jSiS": {
     "id": "oTK0M9jSiS",
     "name": "Программист python(senior)",
     "dateTime": 1714944000,
-    "questions": null
+    "questions": null,
+    "token": ""
   }
 }

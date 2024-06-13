@@ -8,6 +8,15 @@ DOCKER_IMAGE_FILE := backend-general.tar
 # Путь на удаленной машине для загрузки Docker-образа
 REMOTE_DIR := ~/docker_images
 
+# Команда для запуска проекта
+run-local:
+	@echo "\033[32m local run project... \033[0m"
+	AGORA_ADDR="http://localhost:8081" go run main.go
+
+docker-local:
+	@echo "\033[32m local docker compose... \033[0m"
+	docker-compose -f docker-compose.local.yaml up
+
 # Команда для сборки Docker-образа
 build:
 	@echo "\033[32m docker build... \033[0m"
