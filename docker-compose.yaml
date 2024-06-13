@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  backend-general:
+    build: .
+    container_name: backend-general
+    ports:
+      - "8080:8080"
+    restart: on-failure
+
+  agora-token-service:
+    image: agora-token-service:latest
+    container_name: agora-token-service
+    ports:
+      - "8081:8080"
+    environment:
+      - APP_ID=a2092044d6ca44ecab0c9a797a677110
+      - APP_CERTIFICATE=49bbfec2d89b43ab95ae570e4b101824
+      - CORS_ALLOW_ORIGIN=*
+    restart: on-failure
