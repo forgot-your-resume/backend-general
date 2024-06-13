@@ -28,17 +28,29 @@ save:
 	docker save -o out/$(DOCKER_IMAGE_FILE) $(DOCKER_IMAGE_NAME)
 
 # Команда для загрузки Docker-образа на удаленную машину
-upload:
+upload-images:
 	@echo "\033[32m download image to server... \033[0m"
 	scp out/$(DOCKER_IMAGE_FILE) $(REMOTE_HOST):$(REMOTE_DIR)
 
 # Команда для удаленной загрузки и запуска Docker-образа
-deploy: build save upload
+deploy: build save upload-images
+	@echo "\033[32m stop docker compose... \033[0m"
+	ssh $(REMOTE_HOST) "cd /home/user1/docker_images/; sudo docker-compose down || true"
+
 	@echo "\033[32m docker remove old image... \033[0m"
 	ssh $(REMOTE_HOST) "sudo docker rmi -f $(DOCKER_IMAGE_NAME) || true"
-	@echo "\033[32m stop and remove containers using port 8080... \033[0m"
-	ssh $(REMOTE_HOST) "sudo docker ps -q --filter 'publish=8080' | xargs -r sudo docker stop | xargs -r sudo docker rm"
+
+	@echo "\033[32m remove unused container... \033[0m"
+	ssh $(REMOTE_HOST) "sudo docker container prune -f || true"
+
+	@echo "\033[32m remove unused images... \033[0m"
+	ssh $(REMOTE_HOST) "sudo docker image prune -f || true"
+
+	@echo "\033[32m copy docker compose file... \033[0m"
+	scp docker-compose.yaml $(REMOTE_HOST):/home/user1/docker_images/docker-compose.yaml
+
 	@echo "\033[32m docker load image... \033[0m"
 	ssh $(REMOTE_HOST) "sudo docker load -i $(REMOTE_DIR)/$(DOCKER_IMAGE_FILE)"
-	@echo "\033[32m docker run image... \033[0m"
-	ssh $(REMOTE_HOST) "sudo docker run -d -p 8080:8080 $(DOCKER_IMAGE_NAME)"
+
+	@echo "\033[32m start docker compose... \033[0m"
+	ssh $(REMOTE_HOST) "cd /home/user1/docker_images/; sudo docker-compose up -d || true"

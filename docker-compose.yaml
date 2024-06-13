@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   backend-general:
-    build: .
+    image: backend-general:latest
     container_name: backend-general
     environment:
       - AGORA_ADDR=http://agora-token-service:8080
@@ -11,7 +11,7 @@ services:
     restart: on-failure
 
   agora-token-service:
-    image: agora-token-service:latest
+    image: iamriajul/agora-token-service:latest
     container_name: agora-token-service
     environment:
       - APP_ID=a2092044d6ca44ecab0c9a797a677110

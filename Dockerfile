@@ -6,6 +6,7 @@ ADD . .
 
 RUN ls
 
+RUN go mod download
 RUN GOARCH=amd64 go build .
 
 # final

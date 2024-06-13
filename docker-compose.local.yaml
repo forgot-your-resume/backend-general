@@ -3,7 +3,7 @@ version: '3.8'
 services:
 
   agora-token-service:
-    image: agora-token-service:latest
+    image: iamriajul/agora-token-service:latest
     container_name: agora-token-service
     ports:
       - 8081:8080

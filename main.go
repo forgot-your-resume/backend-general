@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -303,7 +302,7 @@ func getAgoraToken(req TokenRequest) (string, error) {
 }
 
 func loadUsers() {
-	file, err := ioutil.ReadFile(filepath.Join(dataDir, "users.json"))
+	file, err := os.ReadFile(filepath.Join(dataDir, "users.json"))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return
@@ -322,13 +321,13 @@ func saveUsers() {
 		log.Fatalf("Failed to encode users: %v", err)
 	}
 
-	if err := ioutil.WriteFile(filepath.Join(dataDir, "users.json"), file, 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(dataDir, "users.json"), file, 0644); err != nil {
 		log.Fatalf("Failed to save users: %v", err)
 	}
 }
 
 func loadConferences() {
-	file, err := ioutil.ReadFile(filepath.Join(dataDir, "conferences.json"))
+	file, err := os.ReadFile(filepath.Join(dataDir, "conferences.json"))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return
@@ -347,7 +346,7 @@ func saveConferences() {
 		log.Fatalf("Failed to encode conferences: %v", err)
 	}
 
-	if err := ioutil.WriteFile(filepath.Join(dataDir, "conferences.json"), file, 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(dataDir, "conferences.json"), file, 0644); err != nil {
 		log.Fatalf("Failed to save conferences: %v", err)
 	}
 }
