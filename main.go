@@ -292,13 +292,15 @@ func createConferenceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID := getUserIDFromCtx(r.Context())
+
 	// Создаем запрос для получения токена
 	tokenReq := TokenRequest{
 		TokenType: "rtc",
-		Channel:   "my-video-channel",
+		Channel:   data.Name,
 		Role:      "publisher",
-		UID:       "user123",
-		Expire:    3600,
+		UID:       userID,
+		Expire:    7200,
 	}
 
 	token, err := getAgoraToken(tokenReq)

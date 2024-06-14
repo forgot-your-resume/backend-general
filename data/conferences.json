@@ -6,6 +6,26 @@
     "questions": null,
     "token": "007eJxSYFDj7DuXlJ255M2lnx0JzHnqhp4nLzpWfn4/zyj48YKlj5UVGBKNDCyNDExMUsySE01MUpMTkwySLRPNLc0TzczNDQ0N3K5lpQnwMTD8z2FgYWRgZGBhYGQA8ZnAJDOYZAGTAgy5lbplmSmp+brJGYl5eak57AylxalFhkbGgAAAAP//GmQl/Q=="
   },
+  "1c803b1b-88b1-417e-8066-e059943c1742": {
+    "id": "1c803b1b-88b1-417e-8066-e059943c1742",
+    "name": "Программист kotlin(junior) 10",
+    "dateTime": 1714944000,
+    "questions": [
+      {
+        "question": "Что такое интерфейс?",
+        "answer": "Интерфейс - это абстрактный тип, который используется для определения набора методов, которые должны быть реализованы классом."
+      },
+      {
+        "question": "Что такое инкапсуляция?",
+        "answer": "Инкапсуляция - это принцип объектно-ориентированного программирования, заключающийся в объединении данных и методов, работающих с этими данными, в единую сущность (класс) и сокрытии деталей реализации от внешнего мира."
+      },
+      {
+        "question": "Что такое полиморфизм?",
+        "answer": "Полиморфизм - это способность функции обрабатывать данные разных типов и/или классов."
+      }
+    ],
+    "token": "007eJxSYJCsuLto2svzXFvMbLNkrpourV+TGq1ttOAHt82BzXG+1/gUGBKNDCyNDExMUsySE01MUpMTkwySLRPNLc0TzczNDQ0NeIJy0hRkGBjuOgkwMzIwMrAwMDKA+ExgkhlMsoBJDYYL8y82XNh3YfPFhgsbLuy5sOfCjouNF5sUsvNLcjLzNLJK8zLzizQVDA1YGUqLU4sMAQEAAP//3dczbA=="
+  },
   "2e9b1927-61ab-40c4-beb9-8403e2ef5d3f": {
     "id": "2e9b1927-61ab-40c4-beb9-8403e2ef5d3f",
     "name": "Программист kotlin(junior) 3",
