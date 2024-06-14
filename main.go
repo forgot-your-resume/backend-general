@@ -28,6 +28,17 @@ type User struct {
 	Role     string `json:"role"`
 }
 
+// Структура оценки
+type Score struct {
+	ID           string `json:"id"`
+	ExpertID     string `json:"expertId"`
+	ApplicantID  string `json:"applicantId"`
+	ConferenceID string `json:"conferenceId"`
+	Score        int8   `json:"score"`
+	IsMatch      bool   `json:"isMatch"`
+	Comment      string `json:"comment"`
+}
+
 // Структура для входа
 type LoginRequest struct {
 	Login    string `json:"login"`
@@ -75,8 +86,10 @@ type Claims struct {
 var (
 	users       = make(map[string]User)
 	conferences = make(map[string]Conference)
+	scores      = make(map[string]Score)
 	usersMutex  sync.Mutex
 	confsMutex  sync.Mutex
+	scoreMutex  sync.Mutex
 	dataDir     = "./data"
 )
 
@@ -96,15 +109,21 @@ func main() {
 
 	loadUsers()
 	loadConferences()
+	loadScores()
 
 	mux.HandleFunc("/ping", pingHandler)
 	mux.HandleFunc("/register", registerHandler)
 	mux.HandleFunc("/login", loginHandler)
 
 	mux.HandleFunc("/conferences", jwtMiddleware(conferencesHandler))
+	mux.HandleFunc("/create_conference", jwtMiddleware(createConferenceHandler))
+	mux.HandleFunc("/join_conference", jwtMiddleware(joinConferenceHandler))
+
 	mux.HandleFunc("/add_question", jwtMiddleware(addQuestionHandler))
 	mux.HandleFunc("/get_questions", jwtMiddleware(getQuestionsHandler))
-	mux.HandleFunc("/create_conference", jwtMiddleware(createConferenceHandler))
+	
+	mux.HandleFunc("/add_score", jwtMiddleware(addScoreHandler))
+	mux.HandleFunc("/get_scores", jwtMiddleware(getScoresHandler))
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
@@ -149,7 +168,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	saveUsers()
 
-	tokenString, err := generateJWT(user.Login)
+	tokenString, err := generateJWT(user.ID)
 	if err != nil {
 		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
 		return
@@ -186,7 +205,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenString, err := generateJWT(user.Login)
+	tokenString, err := generateJWT(user.ID)
 	if err != nil {
 		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
 		return
@@ -336,6 +355,114 @@ func createConferenceHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(conferences[confID])
 }
 
+func joinConferenceHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var data struct {
+		ConferenceID string  `json:"conferenceId"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	userID := getUserIDFromCtx(r.Context())
+
+	confsMutex.Lock()
+	conference, ok := conferences[data.ConferenceID]
+	confsMutex.Unlock()
+
+	if !ok {
+		http.Error(w, "Conference not found", http.StatusBadRequest)
+		return
+	}
+
+	// Создаем запрос для получения токена
+	tokenReq := TokenRequest{
+		TokenType: "rtc",
+		Channel:   conference.Name,
+		Role:      "publisher",
+		UID:       userID,
+		Expire:    7200,
+	}
+
+	token, err := getAgoraToken(tokenReq)
+	if err != nil {
+		http.Error(w, "Failed to get token", http.StatusInternalServerError)
+		return
+	}
+
+	res := struct{
+		ConferenceToken string `json:"conferenceToken"`
+	}{
+		ConferenceToken: token,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
+}
+
+func addScoreHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var data struct {
+		ApplicantID  string `json:"applicantId"`
+		ConferenceID string `json:"conferenceId"`
+		Score        int8   `json:"score"`
+		IsMatch      bool   `json:"isMatch"`
+		Comment      string `json:"comment"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	userID := getUserIDFromCtx(r.Context())
+
+	scoreID := uuid.New().String()
+
+	scoreMutex.Lock()
+	scores[scoreID] = Score{
+		ID:           scoreID,
+		ExpertID:     userID,
+		ApplicantID:  data.ApplicantID,
+		ConferenceID: data.ConferenceID,
+		Score:        data.Score,
+		IsMatch:      data.IsMatch,
+		Comment:      data.Comment,
+	}
+	scoreMutex.Unlock()
+
+	saveScores()
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(scores[scoreID])
+}
+
+func getScoresHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	scoreMutex.Lock()
+	scoreList := make([]Score, 0, len(scores))
+	for _, score := range scores {
+		scoreList = append(scoreList, score)
+	}
+	scoreMutex.Unlock()
+
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(scoreList)
+}
+
 func getAgoraToken(req TokenRequest) (string, error) {
 	jsonReq, err := json.Marshal(req)
 	if err != nil {
@@ -407,6 +534,31 @@ func saveConferences() {
 
 	if err := os.WriteFile(filepath.Join(dataDir, "conferences.json"), file, 0644); err != nil {
 		log.Fatalf("Failed to save conferences: %v", err)
+	}
+}
+
+func loadScores() {
+	file, err := os.ReadFile(filepath.Join(dataDir, "scores.json"))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return
+		}
+		log.Fatalf("Failed to load scores: %v", err)
+	}
+
+	if err := json.Unmarshal(file, &scores); err != nil {
+		log.Fatalf("Failed to parse scores: %v", err)
+	}
+}
+
+func saveScores() {
+	file, err := json.MarshalIndent(scores, "", "  ")
+	if err != nil {
+		log.Fatalf("Failed to encode scores: %v", err)
+	}
+
+	if err := os.WriteFile(filepath.Join(dataDir, "scores.json"), file, 0644); err != nil {
+		log.Fatalf("Failed to save scores: %v", err)
 	}
 }
 
