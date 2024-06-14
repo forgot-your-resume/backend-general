@@ -52,7 +52,6 @@ type Conference struct {
 	Name      string     `json:"name"`
 	DateTime  int64      `json:"dateTime"`
 	Questions []Question `json:"questions"`
-	Token     string     `json:"token"`
 	UserIDs   []string   `json:"userIDs"`
 }
 
@@ -315,21 +314,6 @@ func createConferenceHandler(w http.ResponseWriter, r *http.Request) {
 
 	userID := getUserIDFromCtx(r.Context())
 
-	// Создаем запрос для получения токена
-	tokenReq := TokenRequest{
-		TokenType: "rtc",
-		Channel:   data.Name,
-		Role:      "publisher",
-		UID:       userID,
-		Expire:    7200,
-	}
-
-	token, err := getAgoraToken(tokenReq)
-	if err != nil {
-		http.Error(w, "Failed to get token", http.StatusInternalServerError)
-		return
-	}
-
 	confID := uuid.New().String()
 
 	randomQuestions := questions.GetRandomQuestions(3)
@@ -346,7 +330,6 @@ func createConferenceHandler(w http.ResponseWriter, r *http.Request) {
 		Name:      data.Name,
 		DateTime:  data.DateTime,
 		Questions: questions,
-		Token:     token,
 	}
 	confsMutex.Unlock()
 
