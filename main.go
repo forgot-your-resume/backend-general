@@ -90,7 +90,13 @@ func main() {
 	mux.HandleFunc("/get_questions", getQuestionsHandler)
 	mux.HandleFunc("/create_conference", createConferenceHandler)
 
-	handler := cors.Default().Handler(mux)
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedHeaders: []string{"*"},
+		Debug: true,
+	})
+
+	handler := c.Handler(mux)
 
 	log.Println("Server is running on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", handler))
