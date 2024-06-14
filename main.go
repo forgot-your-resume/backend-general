@@ -37,6 +37,7 @@ type LoginRequest struct {
 // Структура конференции
 type Conference struct {
 	ID        string     `json:"id"`
+	AuthorID  string     `json:"authorID"`
 	Name      string     `json:"name"`
 	DateTime  int64      `json:"dateTime"`
 	Questions []Question `json:"questions"`
@@ -321,6 +322,7 @@ func createConferenceHandler(w http.ResponseWriter, r *http.Request) {
 	confsMutex.Lock()
 	conferences[confID] = Conference{
 		ID:        confID,
+		AuthorID:  userID,
 		Name:      data.Name,
 		DateTime:  data.DateTime,
 		Questions: questions,
