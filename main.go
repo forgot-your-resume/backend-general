@@ -2,14 +2,20 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
+	"time"
 
+	"forgot-your-resume/backend-general/internal/questions"
+
+	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/rs/cors"
 )
@@ -57,6 +63,14 @@ type TokenResponse struct {
 	Token string `json:"token"`
 }
 
+var jwtKey = []byte("your_secret_key")
+
+// Структура для тела jwt токена
+type Claims struct {
+	UserID string `json:"userId"`
+	jwt.StandardClaims
+}
+
 var (
 	users       = make(map[string]User)
 	conferences = make(map[string]Conference)
@@ -85,15 +99,16 @@ func main() {
 	mux.HandleFunc("/ping", pingHandler)
 	mux.HandleFunc("/register", registerHandler)
 	mux.HandleFunc("/login", loginHandler)
-	mux.HandleFunc("/conferences", conferencesHandler)
-	mux.HandleFunc("/add_question", addQuestionHandler)
-	mux.HandleFunc("/get_questions", getQuestionsHandler)
-	mux.HandleFunc("/create_conference", createConferenceHandler)
+
+	mux.HandleFunc("/conferences", jwtMiddleware(conferencesHandler))
+	mux.HandleFunc("/add_question", jwtMiddleware(addQuestionHandler))
+	mux.HandleFunc("/get_questions", jwtMiddleware(getQuestionsHandler))
+	mux.HandleFunc("/create_conference", jwtMiddleware(createConferenceHandler))
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 		AllowedHeaders: []string{"*"},
-		Debug: true,
+		Debug:          true,
 	})
 
 	handler := c.Handler(mux)
@@ -133,7 +148,20 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	saveUsers()
 
-	w.WriteHeader(http.StatusCreated)
+	tokenString, err := generateJWT(user.Login)
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
+	tokenResponse := struct {
+		Token string `json:"token"`
+	}{
+		Token: tokenString,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tokenResponse)
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -157,7 +185,20 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	tokenString, err := generateJWT(user.Login)
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
+	tokenResponse := struct {
+		Token string `json:"token"`
+	}{
+		Token: tokenString,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tokenResponse)
 }
 
 func conferencesHandler(w http.ResponseWriter, r *http.Request) {
@@ -268,12 +309,20 @@ func createConferenceHandler(w http.ResponseWriter, r *http.Request) {
 
 	confID := uuid.New().String()
 
+	randomQuestions := questions.GetRandomQuestions(3)
+
+	questions := []Question{}
+	for _, q := range randomQuestions {
+		questions = append(questions, Question(q))
+	}
+
 	confsMutex.Lock()
 	conferences[confID] = Conference{
-		ID:       confID,
-		Name:     data.Name,
-		DateTime: data.DateTime,
-		Token:    token,
+		ID:        confID,
+		Name:      data.Name,
+		DateTime:  data.DateTime,
+		Questions: questions,
+		Token:     token,
 	}
 	confsMutex.Unlock()
 
@@ -355,4 +404,74 @@ func saveConferences() {
 	if err := os.WriteFile(filepath.Join(dataDir, "conferences.json"), file, 0644); err != nil {
 		log.Fatalf("Failed to save conferences: %v", err)
 	}
+}
+
+func generateJWT(userID string) (string, error) {
+	expirationTime := time.Now().Add(24 * time.Hour)
+	claims := &Claims{
+		UserID: userID,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtKey)
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
+func verifyJWT(tokenStr string) (*Claims, error) {
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	if !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
+	return claims, nil
+}
+
+func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token := r.Header.Get("Authorization")
+		if token == "" {
+			http.Error(w, "Token not found", http.StatusUnauthorized)
+			return
+		}
+
+		tokenStr := strings.Split(token, " ")
+		if len(tokenStr) != 2 || tokenStr[0] != "Bearer" {
+			http.Error(w, "Invalid token format", http.StatusUnauthorized)
+			return
+		}
+
+		token = tokenStr[1]
+
+		claims, err := verifyJWT(token)
+		if err != nil {
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "userID", claims.UserID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	}
+}
+
+func getUserIDFromCtx(ctx context.Context) string {
+	res := ctx.Value("userID")
+
+	userID, ok := res.(string)
+	if !ok {
+		return ""
+	}
+
+	return userID
 }
