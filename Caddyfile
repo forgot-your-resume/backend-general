@@ -1,0 +1,3 @@
+hr.lakrica.xyz {
+    reverse_proxy backend-general:8080
+}
