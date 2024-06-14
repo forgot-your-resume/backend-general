@@ -5,7 +5,10 @@
     "name": "Программист kotlin(junior) 4",
     "dateTime": 1714944000,
     "questions": null,
-    "token": "007eJxSYFDj7DuXlJ255M2lnx0JzHnqhp4nLzpWfn4/zyj48YKlj5UVGBKNDCyNDExMUsySE01MUpMTkwySLRPNLc0TzczNDQ0N3K5lpQnwMTD8z2FgYWRgZGBhYGQA8ZnAJDOYZAGTAgy5lbplmSmp+brJGYl5eak57AylxalFhkbGgAAAAP//GmQl/Q=="
+    "token": "007eJxSYFDj7DuXlJ255M2lnx0JzHnqhp4nLzpWfn4/zyj48YKlj5UVGBKNDCyNDExMUsySE01MUpMTkwySLRPNLc0TzczNDQ0N3K5lpQnwMTD8z2FgYWRgZGBhYGQA8ZnAJDOYZAGTAgy5lbplmSmp+brJGYl5eak57AylxalFhkbGgAAAAP//GmQl/Q==",
+    "userIDs": [
+      "user1"
+    ]
   },
   "1bd02237-9178-4391-a1f5-1f8cabe84a48": {
     "id": "1bd02237-9178-4391-a1f5-1f8cabe84a48",
@@ -26,7 +29,8 @@
         "answer": "Массив - это структура данных, представляющая собой упорядоченный набор элементов одного типа, доступных по индексу."
       }
     ],
-    "token": "007eJxSYCg7pW0+nbkqxznvzvUn/3kWXLi9gsuSXYypdf2ujiP+yyQVGBKNDCyNDExMUsySE01MUpMTkwySLRPNLc0TzczNDQ0NlGJy0hRkGBjMP91mYWRgZGBhYGQA8ZnAJDOYZAGTGgwX5l9suLDvwuaLDRc2XNhzYc+FHRcbLzYpZOeX5GTmaWSV5mXmF2kqGJqyMpQWpxYZAgIAAP//O+M0jA=="
+    "token": "007eJxSYCg7pW0+nbkqxznvzvUn/3kWXLi9gsuSXYypdf2ujiP+yyQVGBKNDCyNDExMUsySE01MUpMTkwySLRPNLc0TzczNDQ0NlGJy0hRkGBjMP91mYWRgZGBhYGQA8ZnAJDOYZAGTGgwX5l9suLDvwuaLDRc2XNhzYc+FHRcbLzYpZOeX5GTmaWSV5mXmF2kqGJqyMpQWpxYZAgIAAP//O+M0jA==",
+    "userIDs": null
   },
   "1c803b1b-88b1-417e-8066-e059943c1742": {
     "id": "1c803b1b-88b1-417e-8066-e059943c1742",
@@ -47,7 +51,8 @@
         "answer": "Полиморфизм - это способность функции обрабатывать данные разных типов и/или классов."
       }
     ],
-    "token": "007eJxSYJCsuLto2svzXFvMbLNkrpourV+TGq1ttOAHt82BzXG+1/gUGBKNDCyNDExMUsySE01MUpMTkwySLRPNLc0TzczNDQ0NeIJy0hRkGBjuOgkwMzIwMrAwMDKA+ExgkhlMsoBJDYYL8y82XNh3YfPFhgsbLuy5sOfCjouNF5sUsvNLcjLzNLJK8zLzizQVDA1YGUqLU4sMAQEAAP//3dczbA=="
+    "token": "007eJxSYJCsuLto2svzXFvMbLNkrpourV+TGq1ttOAHt82BzXG+1/gUGBKNDCyNDExMUsySE01MUpMTkwySLRPNLc0TzczNDQ0NeIJy0hRkGBjuOgkwMzIwMrAwMDKA+ExgkhlMsoBJDYYL8y82XNh3YfPFhgsbLuy5sOfCjouNF5sUsvNLcjLzNLJK8zLzizQVDA1YGUqLU4sMAQEAAP//3dczbA==",
+    "userIDs": null
   },
   "2e9b1927-61ab-40c4-beb9-8403e2ef5d3f": {
     "id": "2e9b1927-61ab-40c4-beb9-8403e2ef5d3f",
@@ -55,7 +60,8 @@
     "name": "Программист kotlin(junior) 3",
     "dateTime": 1714944000,
     "questions": null,
-    "token": "007eJxSYJCMMhD4ahpnY/Rud0/4faV3Ec8YPikHJlz/5WHibX7qaawCQ6KRgaWRgYlJillyoolJanJikkGyZaK5pXmimbm5oaFB1+WsNAE+BoZ71p8YGBkYGVgYGBlAfCYwyQwmWcCkAENupW5ZZkpqvm5yRmJeXmoOO0NpcWqRoZExIAAA//+MLSVA"
+    "token": "007eJxSYJCMMhD4ahpnY/Rud0/4faV3Ec8YPikHJlz/5WHibX7qaawCQ6KRgaWRgYlJillyoolJanJikkGyZaK5pXmimbm5oaFB1+WsNAE+BoZ71p8YGBkYGVgYGBlAfCYwyQwmWcCkAENupW5ZZkpqvm5yRmJeXmoOO0NpcWqRoZExIAAA//+MLSVA",
+    "userIDs": null
   },
   "c08e23f2-8aa1-4f3b-9b04-d9df174dd650": {
     "id": "c08e23f2-8aa1-4f3b-9b04-d9df174dd650",
@@ -76,7 +82,8 @@
         "answer": "Переменная - это именованная область памяти, используемая для хранения данных."
       }
     ],
-    "token": "007eJxSYHjyvNVebNstNwvOnxwdz4ztDJKabdbo3JyhnyK7ue7UHyYFhkQjA0sjAxOTFLPkRBOT1OTEJINky0RzS/NEM3NzQ0ODbz45aQJ8DAz6Yl9ZGRkYGVgYGBlAfCYwyQwmWcCkAENupW5ZZkpqvm5yRmJeXmoOO0NpcWqRoZExIAAA//9bqSQ3"
+    "token": "007eJxSYHjyvNVebNstNwvOnxwdz4ztDJKabdbo3JyhnyK7ue7UHyYFhkQjA0sjAxOTFLPkRBOT1OTEJINky0RzS/NEM3NzQ0ODbz45aQJ8DAz6Yl9ZGRkYGVgYGBlAfCYwyQwmWcCkAENupW5ZZkpqvm5yRmJeXmoOO0NpcWqRoZExIAAA//9bqSQ3",
+    "userIDs": null
   },
   "ca1e360c-4c37-4f0b-b6d4-1f23a7bb3eb7": {
     "id": "ca1e360c-4c37-4f0b-b6d4-1f23a7bb3eb7",
@@ -84,7 +91,8 @@
     "name": "Программист kotlin(junior)",
     "dateTime": 1714944000,
     "questions": null,
-    "token": "007eJxSYNB90uSTUhJxwbpSIYL79O9f9v0cs9p/qL2df+n59x9RNxUVGBKNDCyNDExMUsySE01MUpMTkwySLRPNLc0TzczNDQ0Nilxz0gT4GBjadrgyMTIwMrAwMDKA+ExgkhlMsoBJAYbcSt2yzJTUfN3kjMS8vNQcdobS4tQiQyNjQAAAAP//W7Umhg=="
+    "token": "007eJxSYNB90uSTUhJxwbpSIYL79O9f9v0cs9p/qL2df+n59x9RNxUVGBKNDCyNDExMUsySE01MUpMTkwySLRPNLc0TzczNDQ0Nilxz0gT4GBjadrgyMTIwMrAwMDKA+ExgkhlMsoBJAYbcSt2yzJTUfN3kjMS8vNQcdobS4tQiQyNjQAAAAP//W7Umhg==",
+    "userIDs": null
   },
   "f03129c2-8c5f-4911-988c-1303bd3213b5": {
     "id": "f03129c2-8c5f-4911-988c-1303bd3213b5",
@@ -92,7 +100,8 @@
     "name": "Программист kotlin(junior) 2",
     "dateTime": 1714944000,
     "questions": null,
-    "token": "007eJxSYLBacELix5Ols7+9ZEhl2734/CGVYLP3CS4zVDhy/oT2rChWYEg0MrA0MjAxSTFLTjQxSU1OTDJItkw0tzRPNDM3NzQ0ML6clSbAx8DAvH0BKyMDIwMLAyMDiM8EJpnBJAuYFGDIrdQty0xJzddNzkjMy0vNYWcoLU4tMjQyBgQAAP//GaolsQ=="
+    "token": "007eJxSYLBacELix5Ols7+9ZEhl2734/CGVYLP3CS4zVDhy/oT2rChWYEg0MrA0MjAxSTFLTjQxSU1OTDJItkw0tzRPNDM3NzQ0ML6clSbAx8DAvH0BKyMDIwMLAyMDiM8EJpnBJAuYFGDIrdQty0xJzddNzkjMy0vNYWcoLU4tMjQyBgQAAP//GaolsQ==",
+    "userIDs": null
   },
   "oTK0M9jSiS": {
     "id": "oTK0M9jSiS",
@@ -100,6 +109,7 @@
     "name": "Программист python(senior)",
     "dateTime": 1714944000,
     "questions": null,
-    "token": ""
+    "token": "",
+    "userIDs": null
   }
 }

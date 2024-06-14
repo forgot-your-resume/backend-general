@@ -53,6 +53,7 @@ type Conference struct {
 	DateTime  int64      `json:"dateTime"`
 	Questions []Question `json:"questions"`
 	Token     string     `json:"token"`
+	UserIDs   []string   `json:"userIDs"`
 }
 
 // Структура вопроса
@@ -121,7 +122,7 @@ func main() {
 
 	mux.HandleFunc("/add_question", jwtMiddleware(addQuestionHandler))
 	mux.HandleFunc("/get_questions", jwtMiddleware(getQuestionsHandler))
-	
+
 	mux.HandleFunc("/add_score", jwtMiddleware(addScoreHandler))
 	mux.HandleFunc("/get_scores", jwtMiddleware(getScoresHandler))
 
@@ -362,7 +363,7 @@ func joinConferenceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var data struct {
-		ConferenceID string  `json:"conferenceId"`
+		ConferenceID string `json:"conferenceId"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -395,7 +396,26 @@ func joinConferenceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := struct{
+	confsMutex.Lock()
+	
+	found := false
+	for _, id := range conference.UserIDs {
+		if id == userID {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		conference.UserIDs = append(conference.UserIDs, userID)
+		conferences[data.ConferenceID] = conference
+	}
+
+	confsMutex.Unlock()
+
+	saveConferences()
+
+	res := struct {
 		ConferenceToken string `json:"conferenceToken"`
 	}{
 		ConferenceToken: token,
@@ -457,7 +477,6 @@ func getScoresHandler(w http.ResponseWriter, r *http.Request) {
 		scoreList = append(scoreList, score)
 	}
 	scoreMutex.Unlock()
-
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(scoreList)
